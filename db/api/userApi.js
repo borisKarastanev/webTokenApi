@@ -1,5 +1,6 @@
 'use strict';
 let User = require('../models/user');
+let jwt = require('jsonwebtoken');
 
 function UserApi() {}
 
@@ -17,6 +18,31 @@ UserApi.prototype.createNewUser = function createNewUser(data, callback) {
         else {
             //TODO Implement a user Log
             callback(null, {success: true});
+        }
+    });
+};
+
+UserApi.prototype.authenticateUser = function (credentials, authSecret, callback) {
+    if(typeof credentials !== 'object' && credentials === null) {
+        throw new Error('Object required!');
+    }
+
+    User.findOne({
+        name: credentials.name,
+        password: credentials.password
+    }, function (err, user) {
+        if (err) {
+            throw new Error(err);
+        }
+
+        if (!user) {
+            callback(null, {success: false, message: 'Authentication failed.'})
+        }
+        else {
+            let token = jwt.sign(user, authSecret, {
+                expiresIn: 120 // expires in 2 hours
+            });
+            callback(null, {success: true, message: 'Welcome back ' + user.name, token: token});
         }
     });
 };

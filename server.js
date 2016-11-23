@@ -5,8 +5,8 @@ let app = express();
 let bodyParser = require('body-parser');
 let morgan = require('morgan');
 let mongoose = require('mongoose');
+let apiRoutes = express.Router();
 
-let jwt = require('jsonwebtoken');
 let config = require('./config');
 let UserApi = require('./db/api/userApi');
 let usrApi = new UserApi();
@@ -35,18 +35,11 @@ app.get('/', function (req, res) {
     else {
         res.send('Unable to connect to database!');
     }
-
 });
 
-// For test purposes only
-app.get('/addNewUser', function (req, res) {
-    let userData = {
-        name: 'Niki Lauda',
-        password: 'test123',
-        admin: false
-    };
-
-    usrApi.createNewUser(userData, function (err, result) {
+apiRoutes.post('/authenticate', function (req, res) {
+    let _authSecret = app.get('authSecret');
+    usrApi.authenticateUser(req.body, _authSecret, function (err, result) {
         if (err) {
             res.json(err);
         }
@@ -56,6 +49,7 @@ app.get('/addNewUser', function (req, res) {
     });
 });
 
+app.use('/api', apiRoutes);
 
 app.listen(PORT);
 
