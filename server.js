@@ -8,7 +8,7 @@ let mongoose = require('mongoose');
 
 let jwt = require('jsonwebtoken');
 let config = require('./config');
-let UserApi = require('./models/userApi');
+let UserApi = require('./db/api/userApi');
 let usrApi = new UserApi();
 
 const PORT = process.env.PORT || config.port;

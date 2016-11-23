@@ -1,5 +1,5 @@
 'use strict';
-let User = require('./user');
+let User = require('../models/user');
 
 function UserApi() {}
 
