@@ -49,6 +49,18 @@ apiRoutes.post('/authenticate', function (req, res) {
     });
 });
 
+apiRoutes.post('/createNew', function (req, res) {
+    usrApi.createNewUser(req.body, function (err, result) {
+        console.log('Result?? ', err);
+        if (err) {
+            res.json(err);
+        }
+        else {
+            res.json(result);
+        }
+    });
+});
+
 app.use('/api', apiRoutes);
 
 app.listen(PORT);
