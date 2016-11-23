@@ -13,6 +13,12 @@ let usrApi = new UserApi();
 
 const PORT = process.env.PORT || config.port;
 
+mongoose.connection.on('open', function () {
+    console.log('Database connection established!');
+}).on('error', function (err) {
+    console.error(err);
+});
+
 mongoose.connect(config.database);
 
 app.set('authSecret', config.secret);
@@ -23,10 +29,16 @@ app.use(bodyParser.json());
 app.use(morgan('dev'));
 
 app.get('/', function (req, res) {
-    res.send('Hello world');
+    if (mongoose.connection.readyState !== 0) {
+        res.send('Hello world');
+    }
+    else {
+        res.send('Unable to connect to database!');
+    }
+
 });
 
-
+// For test purposes only
 app.get('/addNewUser', function (req, res) {
     let userData = {
         name: 'Niki Lauda',

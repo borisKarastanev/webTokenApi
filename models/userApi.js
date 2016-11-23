@@ -9,7 +9,6 @@ UserApi.prototype.createNewUser = function createNewUser(data, callback) {
     }
 
     let _user = new User(data);
-    console.log(_user);
     //TODO Hash and salt UserPasswords
     _user.save(function (err) {
         if (err) {
