@@ -29,6 +29,7 @@ app.use(bodyParser.json());
 
 app.use(morgan('dev'));
 
+// Start public endpoints
 app.get('/', function (req, res) {
     if (mongoose.connection.readyState !== 0) {
         res.send('Hello world');
@@ -62,6 +63,8 @@ apiRoutes.post('/authenticate', function (req, res) {
     });
 });
 
+// End public endpoints
+
 // Routes Middleware
 apiRoutes.use(function (req, res, next) {
     let token = req.body.token || req.query.token
@@ -86,6 +89,20 @@ apiRoutes.use(function (req, res, next) {
         });
     }
 });
+
+// Start Protected endpoints
+apiRoutes.post('/getAllUsers', function (req, res) {
+    usrApi.getAllUsers(function (err, users) {
+        if (err) {
+            res.json(err);
+        }
+        else {
+            res.json(users);
+        }
+    });
+});
+
+// End Protected endpoints
 
 app.use('/api', apiRoutes);
 

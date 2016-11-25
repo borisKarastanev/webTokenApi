@@ -60,4 +60,20 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret, callback
     });
 };
 
+UserApi.prototype.getAllUsers = function (callback) {
+    let _projection = {password: 0};
+    User.find({}, _projection, function (err, result) {
+        if (err) {
+            throw new Error(err);
+        }
+
+        if (!result) {
+            return callback({success: false, message: 'No users Found!'});
+        }
+        else {
+            callback(null, result);
+        }
+    });
+};
+
 module.exports = UserApi;
