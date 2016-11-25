@@ -10,6 +10,7 @@ let apiRoutes = express.Router();
 let config = require('./config');
 let UserApi = require('./db/api/userApi');
 let usrApi = new UserApi();
+let secureApi = require('./db/api/secureApi');
 
 const PORT = process.env.PORT || config.port;
 
@@ -37,6 +38,18 @@ app.get('/', function (req, res) {
     }
 });
 
+apiRoutes.post('/createNew', function (req, res) {
+    usrApi.createNewUser(req.body, function (err, result) {
+        console.log('Result?? ', err);
+        if (err) {
+            res.json(err);
+        }
+        else {
+            res.json(result);
+        }
+    });
+});
+
 apiRoutes.post('/authenticate', function (req, res) {
     let _authSecret = app.get('authSecret');
     usrApi.authenticateUser(req.body, _authSecret, function (err, result) {
@@ -49,16 +62,29 @@ apiRoutes.post('/authenticate', function (req, res) {
     });
 });
 
-apiRoutes.post('/createNew', function (req, res) {
-    usrApi.createNewUser(req.body, function (err, result) {
-        console.log('Result?? ', err);
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(result);
-        }
-    });
+// Routes Middleware
+apiRoutes.use(function (req, res, next) {
+    let token = req.body.token || req.query.token
+        || req.headers['x-access-token'];
+    let _secret = app.get('authSecret');
+
+    if (token) {
+        secureApi.verifyToken(token, _secret, function (err, result) {
+            if (err) {
+                return res.json(err)
+            }
+            else {
+                req.decoded = result;
+                next();
+            }
+        });
+    }
+    else {
+        return res.status(403).send({
+            success: false,
+            message: 'Please provide a valid token'
+        });
+    }
 });
 
 app.use('/api', apiRoutes);
