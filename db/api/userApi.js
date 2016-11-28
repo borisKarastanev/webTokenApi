@@ -9,8 +9,12 @@ function UserApi() {
 // End Private methods
 
 UserApi.prototype.createNewUser = function createNewUser(data, callback) {
-    if (typeof data !== 'object' && data === null) {
+    if (typeof data !== 'object' || data === null) {
         throw new Error('Object required!');
+    }
+
+    if (typeof callback !== 'function' || callback === null) {
+        throw new Error('Callback required');
     }
 
     let _user = new User(data);
@@ -28,9 +32,37 @@ UserApi.prototype.createNewUser = function createNewUser(data, callback) {
 
 };
 
+UserApi.prototype.deleteUser = function (uid, callback) {
+    if (typeof uid !== 'string' || uid === null) {
+        throw new Error('Valid user id required');
+    }
+
+    if (typeof callback !== 'function' || callback === null) {
+        throw new Error('Callback required');
+    }
+
+    User.remove({_id: uid}, function (err, result) {
+        if (err) {
+            callback({success: false, message: err.message})
+        }
+        else {
+            if (result.result.n > 0) {
+                callback(null, {success: true, message: 'Successfully deleted user!'});
+            }
+            else {
+                callback(null, result);
+            }
+        }
+    });
+};
+
 UserApi.prototype.authenticateUser = function (credentials, authSecret, callback) {
-    if (typeof credentials !== 'object' && credentials === null) {
+    if (typeof credentials !== 'object' || credentials === null) {
         throw new Error('Object required!');
+    }
+
+    if (typeof callback !== 'function' || callback === null) {
+        throw new Error('Callback required');
     }
 
     User.findOne({
@@ -61,6 +93,10 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret, callback
 };
 
 UserApi.prototype.getAllUsers = function (callback) {
+    if (typeof callback !== 'function' || callback === null) {
+        throw new Error('Callback required');
+    }
+
     let _projection = {password: 0};
     User.find({}, _projection, function (err, result) {
         if (err) {
