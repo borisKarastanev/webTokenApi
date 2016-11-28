@@ -1,6 +1,6 @@
 {
   "name": "web-token-api",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "JSON we token based authentication",
   "main": "server.js",
   "scripts": {
