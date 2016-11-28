@@ -1,48 +1,14 @@
 'use strict';
-let crypto = require('crypto');
-let User = require('../models/user');
+
 let jwt = require('jsonwebtoken');
+
+let User = require('../models/user');
+let secureApi = require('./secureApi');
 
 function UserApi() {
 }
 
 // Start Private methods
-UserApi.prototype._genRandomSalt = function (length) {
-    return crypto.randomBytes(Math.ceil(length / 2))
-        .toString('hex')
-        .slice(0, length);
-};
-
-UserApi.prototype._genHashedPassword = function (password, salt) {
-    let hash = crypto.createHmac('sha512', salt);
-    hash.update(password);
-
-    let val = hash.digest('hex');
-    return {
-        salt: salt,
-        hashedPass: val
-    };
-};
-
-UserApi.prototype._saltHashUserPassword = function (password) {
-    let salt;
-    let _securedPassword;
-    try {
-        salt = this._genRandomSalt(16);
-    }
-    catch (err) {
-        throw new Error(err);
-    }
-
-    try {
-        _securedPassword = this._genHashedPassword(password, salt);
-    }
-    catch (err) {
-        throw new Error(err);
-    }
-
-    return _securedPassword;
-};
 // End Private methods
 
 UserApi.prototype.createNewUser = function createNewUser(data, callback) {
@@ -54,7 +20,7 @@ UserApi.prototype.createNewUser = function createNewUser(data, callback) {
         throw new Error('Callback required');
     }
 
-    let _securedUsrPass = this._saltHashUserPassword(data.password);
+    let _securedUsrPass = secureApi.saltHashUserPassword(data.password);
     data.password = _securedUsrPass.hashedPass + _securedUsrPass.salt;
     data.salt = _securedUsrPass.salt;
 
@@ -121,7 +87,7 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret, callback
             });
         }
         else {
-            let _hashedUsrPass = self._genHashedPassword(
+            let _hashedUsrPass = secureApi.genHashedPassword(
                 credentials.password, user.salt
             );
             let _validUsrPass = _hashedUsrPass.hashedPass + _hashedUsrPass.salt;
