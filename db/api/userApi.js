@@ -4,6 +4,7 @@ let jwt = require('jsonwebtoken');
 
 let User = require('../models/user');
 let secureApi = require('./secureApi');
+let userLogApi = require('./userLogApi');
 
 function UserApi() {
 }
@@ -30,7 +31,7 @@ UserApi.prototype.createNewUser = function createNewUser(data, callback) {
             callback(err.message);
         }
         else {
-            //TODO Implement a user Log
+            //TODO Implement a user LoginLog
             callback(null, {success: true});
         }
     });
@@ -108,6 +109,22 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret, callback
                     message: 'Authentication failed.'
                 });
             }
+
+            let _loginLogDetails = {
+                usrId: user._id,
+                usrName: user.name,
+                usrIp: credentials.usrIp
+            };
+
+            // Add user details to the login Log
+            userLogApi.insertInLoginLog(_loginLogDetails, function (err) {
+                if (err) {
+                    callback(err);
+                }
+                else {
+                    console.log('Successfully added user details to the Login log');
+                }
+            });
         }
     });
 };
