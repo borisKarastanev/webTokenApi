@@ -3,7 +3,7 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
-module.exports = mongoose.model('UserLog', new Schema({
+module.exports = mongoose.model('UserLoginLog', new Schema({
     usrId: String,
     usrName: String,
     usrIp: Number,
@@ -13,6 +13,5 @@ module.exports = mongoose.model('UserLog', new Schema({
     },
     tsEnd: {
         type: Date,
-        default: Date.now
     }
 }));

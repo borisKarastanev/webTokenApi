@@ -1,6 +1,6 @@
 'use strict';
 
-let Log = require('../models/userLog');
+let LoginLog = require('../models/userLoginLog');
 
 function UserLogApi() {
 }
@@ -35,7 +35,30 @@ UserLogApi.prototype._convertIpToStr = function (ipInt) {
 // End Private methods
 
 UserLogApi.prototype.insertInLoginLog = function (data, callback) {
-    throw new Error('Not implemented yet');
+    if (typeof data !== 'object' || data === null) {
+        throw new Error('Data must be of type Object');
+    }
+
+    if (typeof callback !== 'function' || callback === null) {
+        throw new Error('Callback required');
+    }
+
+    try {
+        data.usrIp = this._convertIpToInt(data.usrIp);
+    }
+    catch (err) {
+        console.error(err);
+    }
+
+    let _log = new LoginLog(data);
+    _log.save(function (err) {
+        if (err) {
+            callback(err.message);
+        }
+        else {
+            callback(null, {success: true});
+        }
+    });
 };
 
 UserLogApi.prototype.insertLogoutTs = function (usrId, callback) {
