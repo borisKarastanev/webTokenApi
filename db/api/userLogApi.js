@@ -69,6 +69,7 @@ UserLogApi.prototype.readLoginLog = function (callback) {
     if (typeof callback !== 'function' || callback === null) {
         throw new Error('Callback required');
     }
+
     let self = this;
 
     // Using the lean query parameter to return a plain JS Object rather than full model instance
@@ -92,6 +93,39 @@ UserLogApi.prototype.readLoginLog = function (callback) {
             callback(null, result);
         }
     });
+};
+
+UserLogApi.prototype.readLoginLogById = function (usrId, callback) {
+    if (typeof usrId !== 'string' || usrId === null) {
+        throw new Error('User Id must be of type String');
+    }
+
+    if (typeof callback !== 'function' || callback === null) {
+        throw new Error('Callback required');
+    }
+
+    let self = this;
+
+    LoginLog.find({usrId: usrId}).lean().exec(function (err, result) {
+        if (err) {
+            callback({success: false, message: err.message})
+        }
+
+        if (!result) {
+            return callback({
+                success: false,
+                message: 'Error reading User Login Log'
+            });
+        }
+        else {
+            for (let i = 0; i < result.length; i++) {
+                let _formatDate = new Date(result[i].tsStart);
+                result[i].tsStart = _formatDate.toTimeString();
+                result[i].usrIp = self._convertIpToStr(result[i].usrIp);
+            }
+            callback(null, result);
+        }
+    })
 };
 
 module.exports = new UserLogApi();

@@ -95,6 +95,7 @@ apiRoutes.use(function (req, res, next) {
 });
 
 // Start Protected endpoints
+/*========= Start User Api ===========*/
 apiRoutes.get('/getAllUsers', function (req, res) {
     usrApi.getAllUsers(function (err, users) {
         if (err) {
@@ -118,7 +119,11 @@ apiRoutes.post('/deleteUser/:uid', function (req, res) {
          }
      });
 });
+/*========= End User Api ===========*/
 
+
+/*========= Start User Log Api ===========*/
+// Read user login log
 apiRoutes.get('/readLoginLog', function (req, res) {
     userLogApi.readLoginLog(function (err, log) {
         if (err) {
@@ -129,6 +134,23 @@ apiRoutes.get('/readLoginLog', function (req, res) {
         }
     });
 });
+
+// Read user login log by user id
+apiRoutes.get('/readLoginLog/:uid', function (req, res) {
+    let _uid = req.params.uid || req.body.uid;
+
+    userLogApi.readLoginLogById(_uid, function (err, log) {
+        if (err) {
+            res.json(err);
+        }
+        else {
+            res.json(log);
+        }
+    });
+});
+
+/*========= End User Log Api ===========*/
+
 // End Protected endpoints
 
 app.use('/api', apiRoutes);
