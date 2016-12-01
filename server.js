@@ -11,6 +11,7 @@ let config = require('./config');
 let UserApi = require('./db/api/userApi');
 let usrApi = new UserApi();
 let secureApi = require('./db/api/secureApi');
+let userLogApi = require('./db/api/userLogApi');
 
 const PORT = process.env.PORT || config.port;
 
@@ -94,7 +95,7 @@ apiRoutes.use(function (req, res, next) {
 });
 
 // Start Protected endpoints
-apiRoutes.post('/getAllUsers', function (req, res) {
+apiRoutes.get('/getAllUsers', function (req, res) {
     usrApi.getAllUsers(function (err, users) {
         if (err) {
             res.json(err);
@@ -116,6 +117,17 @@ apiRoutes.post('/deleteUser/:uid', function (req, res) {
              res.json(result);
          }
      });
+});
+
+apiRoutes.get('/readLoginLog', function (req, res) {
+    userLogApi.readLoginLog(function (err, log) {
+        if (err) {
+            res.json(err);
+        }
+        else {
+            res.json(log);
+        }
+    });
 });
 // End Protected endpoints
 
