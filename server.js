@@ -149,6 +149,17 @@ apiRoutes.get('/readLoginLog/:uid', function (req, res) {
     });
 });
 
+apiRoutes.post('/readLoginLogByIp', function (req, res) {
+    userLogApi.readLoginLogByIp(req.body.usrIp, function (err, log) {
+        if (err) {
+            res.json(err);
+        }
+        else {
+            res.json(log);
+        }
+    });
+});
+
 /*========= End User Log Api ===========*/
 
 // End Protected endpoints
