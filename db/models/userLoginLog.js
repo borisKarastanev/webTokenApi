@@ -13,5 +13,9 @@ module.exports = mongoose.model('UserLoginLog', new Schema({
     },
     tsEnd: {
         type: Date,
+    },
+    isLoggedIn: {
+        type: Boolean,
+        default: false
     }
 }));

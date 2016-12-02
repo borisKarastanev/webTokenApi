@@ -113,7 +113,8 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret, callback
             let _loginLogDetails = {
                 usrId: user._id,
                 usrName: user.name,
-                usrIp: credentials.usrIp
+                usrIp: credentials.usrIp,
+                isLoggedIn: true
             };
 
             // Add user details to the login Log

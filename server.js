@@ -149,6 +149,18 @@ apiRoutes.get('/readLoginLog/:uid', function (req, res) {
     });
 });
 
+// Get all logged in users
+apiRoutes.get('/getAllLoggedInUsers', function (req, res) {
+    userLogApi.getAllLoggedInUsers(function (err, log) {
+        if (err) {
+            res.json(err);
+        }
+        else {
+            res.json(log);
+        }
+    });
+});
+
 apiRoutes.post('/readLoginLogByIp', function (req, res) {
     userLogApi.readLoginLogByIp(req.body.usrIp, function (err, log) {
         if (err) {
