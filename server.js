@@ -41,14 +41,13 @@ app.get('/', function (req, res) {
 });
 
 apiRoutes.post('/createNew', function (req, res) {
-    usrApi.createNewUser(req.body, function (err, result) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(result);
-        }
-    });
+    usrApi.createNewUser(req.body)
+    .then((result) => {
+        res.json(result);
+    })
+    .catch((error) => {
+        res.json(error);
+    })
 });
 
 apiRoutes.post('/authenticate', function (req, res) {
@@ -115,16 +114,15 @@ apiRoutes.get('/getAllUsers', function (req, res) {
 });
 
 apiRoutes.post('/deleteUser/:uid', function (req, res) {
-    let _uid = req.params.uid || req.body.uid;
-
-     usrApi.deleteUser(_uid, function (err, result) {
-         if (err) {
-             res.json(err);
-         }
-         else {
-             res.json(result);
-         }
-     });
+    const uid = req.params.uid || req.body.uid;
+    
+    usrApi.deleteUser(uid)
+    .then((result) => {
+        res.json(result);
+    })
+    .catch((error) => {
+        res.json(error);
+    });
 });
 /*========= End User Api ===========*/
 

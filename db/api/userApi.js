@@ -12,55 +12,49 @@ function UserApi() {
 // Start Private methods
 // End Private methods
 
-UserApi.prototype.createNewUser = function createNewUser(data, callback) {
-    if (typeof data !== 'object' || data === null) {
-        throw new Error('Object required!');
-    }
-
-    if (typeof callback !== 'function' || callback === null) {
-        throw new Error('Callback required');
-    }
-
-    let _securedUsrPass = secureApi.saltHashUserPassword(data.password);
-    data.password = _securedUsrPass.hashedPass + _securedUsrPass.salt;
-    data.salt = _securedUsrPass.salt;
-
-    let _user = new User(data);
-    _user.save(function (err) {
-        if (err) {
-            callback(err.message);
+UserApi.prototype.createNewUser = function createNewUser(data) {
+    return new Promise((resolve, reject) => {
+        if (typeof data !== 'object' || data === null) {
+           reject(new Error('Object required!'));
         }
-        else {
-            //TODO Implement a user LoginLog
-            callback(null, {success: true});
-        }
-    });
+    
+        let _securedUsrPass = secureApi.saltHashUserPassword(data.password);
+        data.password = _securedUsrPass.hashedPass + _securedUsrPass.salt;
+        data.salt = _securedUsrPass.salt;
+    
+        let _user = new User(data);
+        _user.save()
+        .then(() => {
+            resolve({success: true});
+        })
+        .catch((error) => {
+            reject(error.message);
+        });
+    });  
 };
 
-UserApi.prototype.deleteUser = function (uid, callback) {
-    if (typeof uid !== 'string' || uid === null) {
-        throw new Error('Valid user id required');
-    }
-
-    if (typeof callback !== 'function' || callback === null) {
-        throw new Error('Callback required');
-    }
-
-    User.remove({_id: uid}, function (err, result) {
-        if (err) {
-            callback({success: false, message: err.message})
+UserApi.prototype.deleteUser = function (uid) {
+    return new Promise((resolve, reject) => {
+        if (typeof uid !== 'string' || uid === null) {
+            reject(new Error('Valid user id required'));
         }
-        else {
-            if (result.result.n > 0) {
-                callback(null, {
+
+        const data = {_id: uid}; 
+        
+        User.remove(data)
+        .then((action) => {
+            if (action.result.n > 0) {
+                resolve({
                     success: true,
                     message: 'Successfully deleted user!'
                 });
+            } else {
+                resolve(action);
             }
-            else {
-                callback(null, result);
-            }
-        }
+        })
+        .catch((error) => {
+            reject(error);
+        });
     });
 };
 
