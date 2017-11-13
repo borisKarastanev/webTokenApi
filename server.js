@@ -63,13 +63,12 @@ apiRoutes.post('/authenticate', function (req, res) {
    
     req.body.usrIp = _usrIp;
 
-    usrApi.authenticateUser(req.body, _authSecret, function (err, result) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(result);
-        }
+    usrApi.authenticateUser(req.body, _authSecret)
+    .then((result) => {
+        res.json(result);
+    })
+    .catch((error) => {
+        res.json(error);
     });
 });
 
@@ -115,7 +114,7 @@ apiRoutes.get('/getAllUsers', function (req, res) {
 
 apiRoutes.post('/deleteUser/:uid', function (req, res) {
     const uid = req.params.uid || req.body.uid;
-    
+
     usrApi.deleteUser(uid)
     .then((result) => {
         res.json(result);

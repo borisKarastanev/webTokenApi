@@ -8,13 +8,16 @@ function UserLogApi() {
 // Start Private methods
 
 UserLogApi.prototype._convertIpToInt = function (ip) {
-    if (typeof ip !== 'string' || ip === null) {
-        throw new Error('Ip address must be of type String');
-    }
+    return new Promise((resolve, reject) => {
+        if (typeof ip !== 'string' || ip === null) {
+            Promise.reject(new Error('Ip address must be of type String'));
+        }
 
-    ip = ip.split('.');
+        ip = ip.split('.');
 
-    return ((((((+ip[0]) * 256) + (+ip[1])) * 256) + (+ip[2])) * 256) + (+ip[3]);
+        const intIp = ((((((+ip[0]) * 256) + (+ip[1])) * 256) + (+ip[2])) * 256) + (+ip[3]);
+        resolve(intIp);
+    });
 };
 
 UserLogApi.prototype._convertIpToStr = function (ipInt) {
@@ -35,30 +38,43 @@ UserLogApi.prototype._convertIpToStr = function (ipInt) {
 // End Private methods
 
 UserLogApi.prototype.insertInLoginLog = function (data, callback) {
-    if (typeof data !== 'object' || data === null) {
-        throw new Error('Data must be of type Object');
-    }
-
-    if (typeof callback !== 'function' || callback === null) {
-        throw new Error('Callback required');
-    }
-
-    try {
-        data.usrIp = this._convertIpToInt(data.usrIp);
-    }
-    catch (err) {
-        console.error(err);
-    }
-
-    let _log = new LoginLog(data);
-    _log.save(function (err) {
-        if (err) {
-            callback(err.message);
+    const self = this;
+    return new Promise((resolve, reject) => {
+        if (typeof data !== 'object' || data === null) {
+            reject(new Error('Data must be of type Object'));
         }
-        else {
-            callback(null, {success: true});
-        }
+
+        self._convertIpToInt(data.usrIp)
+            .then((intIp) => {
+                data.usrIp = intIp;
+                const log = new LoginLog(data);
+
+                return log.save(data)
+            })
+            .then((success) => {
+                resolve({ success: true });
+            })
+            .catch((error) => {
+                Promise.reject(error);
+            });
     });
+
+    // try {
+    //     data.usrIp = this._convertIpToInt(data.usrIp);
+    // }
+    // catch (err) {
+    //     console.error(err);
+    // }
+
+    // let _log = new LoginLog(data);
+    // _log.save(function (err) {
+    //     if (err) {
+    //         callback(err.message);
+    //     }
+    //     else {
+    //         callback(null, { success: true });
+    //     }
+    // });
 };
 
 UserLogApi.prototype.insertLogoutTs = function (usrId, callback) {
@@ -75,7 +91,7 @@ UserLogApi.prototype.readLoginLog = function (callback) {
     // Using the lean query parameter to return a plain JS Object rather than full model instance
     LoginLog.find({}).lean().exec(function (err, result) {
         if (err) {
-            callback({success: false, message: err.message})
+            callback({ success: false, message: err.message })
         }
 
         if (!result) {
@@ -106,9 +122,9 @@ UserLogApi.prototype.readLoginLogById = function (usrId, callback) {
 
     let self = this;
 
-    LoginLog.find({usrId: usrId}).lean().exec(function (err, result) {
+    LoginLog.find({ usrId: usrId }).lean().exec(function (err, result) {
         if (err) {
-            callback({success: false, message: err.message})
+            callback({ success: false, message: err.message })
         }
 
         if (!result) {
@@ -139,9 +155,9 @@ UserLogApi.prototype.readLoginLogByIp = function (usrIp, callback) {
     let self = this;
     let _usrIp = self._convertIpToInt(usrIp);
 
-    LoginLog.find({usrIp: _usrIp}).lean().exec(function (err, result) {
+    LoginLog.find({ usrIp: _usrIp }).lean().exec(function (err, result) {
         if (err) {
-            callback({success: false, message: err.message})
+            callback({ success: false, message: err.message })
         }
 
         if (!result) {
@@ -168,9 +184,9 @@ UserLogApi.prototype.getAllLoggedInUsers = function (callback) {
 
     let self = this;
 
-    LoginLog.find({isLoggedIn: true}).lean().exec(function (err, result) {
+    LoginLog.find({ isLoggedIn: true }).lean().exec(function (err, result) {
         if (err) {
-            callback({success: false, message: err.message})
+            callback({ success: false, message: err.message })
         }
 
         if (!result) {
