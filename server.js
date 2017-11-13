@@ -54,7 +54,14 @@ apiRoutes.post('/createNew', function (req, res) {
 apiRoutes.post('/authenticate', function (req, res) {
     let _authSecret = app.get('authSecret');
     let _usrIp = req.ip || req.connection.remoteAddress;
-    _usrIp = _usrIp.replace('::ffff:', '');
+
+    // Temporary IPv6 solution for localhost addreses 
+    if (_usrIp !== '::1') {
+        _usrIp = _usrIp.replace('::ffff:', '');
+    } else {
+        _usrIp = '127.0.0.1';
+    }
+   
     req.body.usrIp = _usrIp;
 
     usrApi.authenticateUser(req.body, _authSecret, function (err, result) {
