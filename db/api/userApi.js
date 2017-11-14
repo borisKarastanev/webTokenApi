@@ -96,7 +96,12 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret) {
                                 });
                             })
                             .catch((error) => {
-                                reject(error);
+                                const message = {
+                                    success: true,
+                                    message: 'Welcome back ' + user.name,
+                                    warning: 'Failed to add record in the Login Log, please contact the administrator'
+                                }
+                                resolve(message); // TODO Insert error in a Error Log
                             });
 
                     } else {
