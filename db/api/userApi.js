@@ -122,22 +122,21 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret) {
 };
 
 UserApi.prototype.getAllUsers = function (callback) {
-    if (typeof callback !== 'function' || callback === null) {
-        throw new Error('Callback required');
-    }
-
-    let _projection = { password: 0, salt: 0 };
-    User.find({}, _projection, function (err, result) {
-        if (err) {
-            throw new Error(err);
-        }
-
-        if (!result) {
-            return callback({ success: false, message: 'No users Found!' });
-        }
-        else {
-            callback(null, result);
-        }
+    return new Promise((resolve, reject) => {
+        const projection = { password: 0, salt: 0 };
+        
+        User.find({}, projection)
+        .then((users) => {
+            if (!users) {
+                const message = { success: false, message: 'No users Found!' }
+                resolve(message);
+            } else {
+                resolve(users);
+            }
+        })
+        .catch((error) => {
+            reject(error);
+        });
     });
 };
 

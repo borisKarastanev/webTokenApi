@@ -10,7 +10,7 @@ function UserLogApi() {
 UserLogApi.prototype._convertIpToInt = function (ip) {
     return new Promise((resolve, reject) => {
         if (typeof ip !== 'string' || ip === null) {
-            Promise.reject(new Error('Ip address must be of type String'));
+            return Promise.reject(new Error('Ip address must be of type String'));
         }
 
         ip = ip.split('.');
@@ -55,26 +55,9 @@ UserLogApi.prototype.insertInLoginLog = function (data, callback) {
                 resolve({ success: true });
             })
             .catch((error) => {
-                Promise.reject(error);
+                return Promise.reject(error);
             });
     });
-
-    // try {
-    //     data.usrIp = this._convertIpToInt(data.usrIp);
-    // }
-    // catch (err) {
-    //     console.error(err);
-    // }
-
-    // let _log = new LoginLog(data);
-    // _log.save(function (err) {
-    //     if (err) {
-    //         callback(err.message);
-    //     }
-    //     else {
-    //         callback(null, { success: true });
-    //     }
-    // });
 };
 
 UserLogApi.prototype.insertLogoutTs = function (usrId, callback) {

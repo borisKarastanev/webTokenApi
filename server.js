@@ -25,7 +25,7 @@ mongoose.connect(config.database);
 
 app.set('authSecret', config.secret);
 
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(morgan('dev'));
@@ -42,12 +42,12 @@ app.get('/', function (req, res) {
 
 apiRoutes.post('/createNew', function (req, res) {
     usrApi.createNewUser(req.body)
-    .then((result) => {
-        res.json(result);
-    })
-    .catch((error) => {
-        res.json(error);
-    })
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        })
 });
 
 apiRoutes.post('/authenticate', function (req, res) {
@@ -60,16 +60,16 @@ apiRoutes.post('/authenticate', function (req, res) {
     } else {
         _usrIp = '127.0.0.1';
     }
-   
+
     req.body.usrIp = _usrIp;
 
     usrApi.authenticateUser(req.body, _authSecret)
-    .then((result) => {
-        res.json(result);
-    })
-    .catch((error) => {
-        res.json(error);
-    });
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 // End public endpoints
@@ -102,26 +102,25 @@ apiRoutes.use(function (req, res, next) {
 // Start Protected endpoints
 /*========= Start User Api ===========*/
 apiRoutes.get('/getAllUsers', function (req, res) {
-    usrApi.getAllUsers(function (err, users) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(users);
-        }
-    });
+    usrApi.getAllUsers()
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 apiRoutes.post('/deleteUser/:uid', function (req, res) {
     const uid = req.params.uid || req.body.uid;
 
     usrApi.deleteUser(uid)
-    .then((result) => {
-        res.json(result);
-    })
-    .catch((error) => {
-        res.json(error);
-    });
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 /*========= End User Api ===========*/
 
