@@ -37,7 +37,7 @@ UserLogApi.prototype._convertIpToStr = function (ipInt) {
 
 // End Private methods
 
-UserLogApi.prototype.insertInLoginLog = function (data, callback) {
+UserLogApi.prototype.insertInLoginLog = function (data) {
     const self = this;
     return new Promise((resolve, reject) => {
         if (typeof data !== 'object' || data === null) {
@@ -60,13 +60,13 @@ UserLogApi.prototype.insertInLoginLog = function (data, callback) {
     });
 };
 
-UserLogApi.prototype.insertLogoutTs = function (usrId, callback) {
+UserLogApi.prototype.insertLogoutTs = function (usrId) {
     throw new Error('Not implemented yet');
 };
 
-UserLogApi.prototype.readLoginLog = function (callback) {
+UserLogApi.prototype.readLoginLog = function () {
     const self = this;
-    
+
     // Using the lean query parameter to return a plain JS Object rather than full model instance
     return LoginLog.find({}).lean().exec()
         .then((log) => {
@@ -79,7 +79,6 @@ UserLogApi.prototype.readLoginLog = function (callback) {
                 for (let i = 0; i < log.length; i++) {
                     let formatDate = new Date(log[i].tsStart);
                     log[i].tsStart = formatDate.toTimeString();
-                    console.log(log[i].usrIp);
                     log[i].userIp = self._convertIpToStr(log[i].usrIp);
                 }
                 return log;
@@ -90,99 +89,84 @@ UserLogApi.prototype.readLoginLog = function (callback) {
         });
 };
 
-UserLogApi.prototype.readLoginLogById = function (usrId, callback) {
-    if (typeof usrId !== 'string' || usrId === null) {
-        throw new Error('User Id must be of type String');
-    }
+UserLogApi.prototype.readLoginLogById = function (usrId) {
+    const self = this;
 
-    if (typeof callback !== 'function' || callback === null) {
-        throw new Error('Callback required');
-    }
-
-    let self = this;
-
-    LoginLog.find({ usrId: usrId }).lean().exec(function (err, result) {
-        if (err) {
-            callback({ success: false, message: err.message })
-        }
-
-        if (!result) {
-            return callback({
-                success: false,
-                message: 'Error reading User Login Log'
-            });
-        }
-        else {
-            for (let i = 0; i < result.length; i++) {
-                let _formatDate = new Date(result[i].tsStart);
-                result[i].tsStart = _formatDate.toTimeString();
-                result[i].usrIp = self._convertIpToStr(result[i].usrIp);
+    return LoginLog.find({ usrId: usrId }).lean().exec()
+        .then((log) => {
+            if (!log) {
+                return {
+                    success: false,
+                    message: 'Error reading User Login Log'
+                }
+            } else {
+                for (let i = 0; i < log.length; i++) {
+                    let formatDate = new Date(log[i].tsStart);
+                    log[i].tsStart = formatDate.toTimeString();
+                    log[i].usrIp = self._convertIpToStr(log[i].usrIp);
+                }
+                return log;
             }
-            callback(null, result);
-        }
-    })
+
+        })
+        .catch((readLogError) => {
+            return Promise.reject(readLogError);
+        });
 };
 
-UserLogApi.prototype.readLoginLogByIp = function (usrIp, callback) {
+UserLogApi.prototype.readLoginLogByIp = function (usrIp) {
     if (typeof usrIp !== 'string' || usrIp === null) {
-        throw new Error('User Id must be of type String');
+        throw new Error('User Ip must be of type String');
     }
 
-    if (typeof callback !== 'function' || callback === null) {
-        throw new Error('Callback required');
-    }
-    let self = this;
-    let _usrIp = self._convertIpToInt(usrIp);
-
-    LoginLog.find({ usrIp: _usrIp }).lean().exec(function (err, result) {
-        if (err) {
-            callback({ success: false, message: err.message })
-        }
-
-        if (!result) {
-            return callback({
-                success: false,
-                message: 'Error reading User Login Log'
-            });
-        }
-        else {
-            for (let i = 0; i < result.length; i++) {
-                let _formatDate = new Date(result[i].tsStart);
-                result[i].tsStart = _formatDate.toTimeString();
-                result[i].usrIp = self._convertIpToStr(result[i].usrIp);
+    const self = this;
+    return self._convertIpToInt(usrIp)
+        .then((ipInt) => {
+            return LoginLog.find({ usrIp: ipInt }).lean().exec()
+        })
+        .then((log) => {
+            if (!log) {
+                return {
+                    success: false,
+                    message: 'Error reading User Login Log'
+                };
+            } else {
+                for (let i = 0; i < log.length; i++) {
+                    let formatDate = new Date(log[i].tsStart);
+                    log[i].tsStart = formatDate.toTimeString();
+                    log[i].userIp = self._convertIpToStr(log[i].usrIp);
+                }
+                return log;
             }
-            callback(null, result);
-        }
-    });
+        })
+        .catch((logByIpError) => {
+            return Promise.reject(logByIpError);
+        });
 };
 
-UserLogApi.prototype.getAllLoggedInUsers = function (callback) {
-    if (typeof callback !== 'function' || callback === null) {
-        throw new Error('Callback required');
-    }
+UserLogApi.prototype.getAllLoggedInUsers = function () {
+    const self = this;
 
-    let self = this;
-
-    LoginLog.find({ isLoggedIn: true }).lean().exec(function (err, result) {
-        if (err) {
-            callback({ success: false, message: err.message })
-        }
-
-        if (!result) {
-            return callback({
-                success: false,
-                message: 'Error reading User Login Log'
-            });
-        }
-        else {
-            for (let i = 0; i < result.length; i++) {
-                let _formatDate = new Date(result[i].tsStart);
-                result[i].tsStart = _formatDate.toTimeString();
-                result[i].usrIp = self._convertIpToStr(result[i].usrIp);
+    return LoginLog.find({ isLoggedIn: true }).lean().exec()
+        .then((log) => {
+            if (!log) {
+                return {
+                    success: false,
+                    message: 'Error reading User Login Log'
+                };
             }
-            callback(null, result);
-        }
-    });
+            else {
+                for (let i = 0; i < log.length; i++) {
+                    let formatDate = new Date(log[i].tsStart);
+                    log[i].tsStart = formatDate.toTimeString();
+                    log[i].usrIp = self._convertIpToStr(log[i].usrIp);
+                }
+                return log;
+            }
+        })
+        .catch((readLogError) => {
+            return Promise.reject({ success: false, message: readLogError.message })
+        });
 };
 
 module.exports = new UserLogApi();

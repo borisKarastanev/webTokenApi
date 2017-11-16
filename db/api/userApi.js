@@ -79,7 +79,7 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret) {
                     const validUserPass = hashedUserPass.hashedPass + hashedUserPass.salt;
 
                     if (validUserPass === user.password) {
-                        const token = jwt.sign(user, authSecret, { expiresIn: 120 });
+                        const token = jwt.sign(user, authSecret, { expiresIn: 1200 });
                         const loginLogDetails = {
                             usrId: user._id,
                             usrName: user.name,
@@ -122,22 +122,20 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret) {
 };
 
 UserApi.prototype.getAllUsers = function () {
-    return new Promise((resolve, reject) => {
-        const projection = { password: 0, salt: 0 };
-        
-        User.find({}, projection)
+    const projection = { password: 0, salt: 0 };
+
+    return User.find({}, projection)
         .then((users) => {
             if (!users) {
                 const message = { success: false, message: 'No users Found!' }
-                resolve(message);
+                return message
             } else {
-                resolve(users);
+                return users;
             }
         })
         .catch((error) => {
-            reject(error);
+            return Promise.reject(error);
         });
-    });
 };
 
 module.exports = UserApi;

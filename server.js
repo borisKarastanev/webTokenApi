@@ -140,39 +140,36 @@ apiRoutes.get('/readLoginLog', function (req, res) {
 
 // Read user login log by user id
 apiRoutes.get('/readLoginLog/:uid', function (req, res) {
-    let _uid = req.params.uid || req.body.uid;
+    let uid = req.params.uid || req.body.uid;
 
-    userLogApi.readLoginLogById(_uid, function (err, log) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(log);
-        }
-    });
+    userLogApi.readLoginLogById(uid)
+        .then((result) => {
+            res.json(result)
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 // Get all logged in users
 apiRoutes.get('/getAllLoggedInUsers', function (req, res) {
-    userLogApi.getAllLoggedInUsers(function (err, log) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(log);
-        }
-    });
+    userLogApi.getAllLoggedInUsers()
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 apiRoutes.post('/readLoginLogByIp', function (req, res) {
-    userLogApi.readLoginLogByIp(req.body.usrIp, function (err, log) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(log);
-        }
-    });
+    userLogApi.readLoginLogByIp(req.body.usrIp)
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 /*========= End User Log Api ===========*/
