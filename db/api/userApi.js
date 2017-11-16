@@ -121,7 +121,7 @@ UserApi.prototype.authenticateUser = function (credentials, authSecret) {
 
 };
 
-UserApi.prototype.getAllUsers = function (callback) {
+UserApi.prototype.getAllUsers = function () {
     return new Promise((resolve, reject) => {
         const projection = { password: 0, salt: 0 };
         

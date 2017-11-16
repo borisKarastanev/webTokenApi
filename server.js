@@ -128,14 +128,14 @@ apiRoutes.post('/deleteUser/:uid', function (req, res) {
 /*========= Start User Log Api ===========*/
 // Read user login log
 apiRoutes.get('/readLoginLog', function (req, res) {
-    userLogApi.readLoginLog(function (err, log) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(log);
-        }
-    });
+    userLogApi.readLoginLog()
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            console.log(error);
+            res.json(error);
+        });
 });
 
 // Read user login log by user id
