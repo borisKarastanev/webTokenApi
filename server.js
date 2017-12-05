@@ -25,7 +25,7 @@ mongoose.connect(config.database);
 
 app.set('authSecret', config.secret);
 
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(morgan('dev'));
@@ -41,30 +41,35 @@ app.get('/', function (req, res) {
 });
 
 apiRoutes.post('/createNew', function (req, res) {
-    usrApi.createNewUser(req.body, function (err, result) {
-        if (err) {
-            res.json(err);
-        }
-        else {
+    usrApi.createNewUser(req.body)
+        .then((result) => {
             res.json(result);
-        }
-    });
+        })
+        .catch((error) => {
+            res.json(error);
+        })
 });
 
 apiRoutes.post('/authenticate', function (req, res) {
     let _authSecret = app.get('authSecret');
     let _usrIp = req.ip || req.connection.remoteAddress;
-    _usrIp = _usrIp.replace('::ffff:', '');
+
+    // Temporary IPv6 solution for localhost addreses 
+    if (_usrIp !== '::1') {
+        _usrIp = _usrIp.replace('::ffff:', '');
+    } else {
+        _usrIp = '127.0.0.1';
+    }
+
     req.body.usrIp = _usrIp;
 
-    usrApi.authenticateUser(req.body, _authSecret, function (err, result) {
-        if (err) {
-            res.json(err);
-        }
-        else {
+    usrApi.authenticateUser(req.body, _authSecret)
+        .then((result) => {
             res.json(result);
-        }
-    });
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 // End public endpoints
@@ -97,27 +102,25 @@ apiRoutes.use(function (req, res, next) {
 // Start Protected endpoints
 /*========= Start User Api ===========*/
 apiRoutes.get('/getAllUsers', function (req, res) {
-    usrApi.getAllUsers(function (err, users) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(users);
-        }
-    });
+    usrApi.getAllUsers()
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 apiRoutes.post('/deleteUser/:uid', function (req, res) {
-    let _uid = req.params.uid || req.body.uid;
+    const uid = req.params.uid || req.body.uid;
 
-     usrApi.deleteUser(_uid, function (err, result) {
-         if (err) {
-             res.json(err);
-         }
-         else {
-             res.json(result);
-         }
-     });
+    usrApi.deleteUser(uid)
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 /*========= End User Api ===========*/
 
@@ -125,51 +128,48 @@ apiRoutes.post('/deleteUser/:uid', function (req, res) {
 /*========= Start User Log Api ===========*/
 // Read user login log
 apiRoutes.get('/readLoginLog', function (req, res) {
-    userLogApi.readLoginLog(function (err, log) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(log);
-        }
-    });
+    userLogApi.readLoginLog()
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            console.log(error);
+            res.json(error);
+        });
 });
 
 // Read user login log by user id
 apiRoutes.get('/readLoginLog/:uid', function (req, res) {
-    let _uid = req.params.uid || req.body.uid;
+    let uid = req.params.uid || req.body.uid;
 
-    userLogApi.readLoginLogById(_uid, function (err, log) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(log);
-        }
-    });
+    userLogApi.readLoginLogById(uid)
+        .then((result) => {
+            res.json(result)
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 // Get all logged in users
 apiRoutes.get('/getAllLoggedInUsers', function (req, res) {
-    userLogApi.getAllLoggedInUsers(function (err, log) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(log);
-        }
-    });
+    userLogApi.getAllLoggedInUsers()
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 apiRoutes.post('/readLoginLogByIp', function (req, res) {
-    userLogApi.readLoginLogByIp(req.body.usrIp, function (err, log) {
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.json(log);
-        }
-    });
+    userLogApi.readLoginLogByIp(req.body.usrIp)
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((error) => {
+            res.json(error);
+        });
 });
 
 /*========= End User Log Api ===========*/

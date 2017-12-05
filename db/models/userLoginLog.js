@@ -3,6 +3,8 @@
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
+mongoose.Promise = Promise;
+
 module.exports = mongoose.model('UserLoginLog', new Schema({
     usrId: String,
     usrName: String,
